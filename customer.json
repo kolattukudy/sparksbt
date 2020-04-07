@@ -1,0 +1,25 @@
+{
+  "title": {
+    "titleid": "222",
+    "titlename": "ABCD"
+  },
+  "customer": {
+    "customerDetail": {
+      "customerid": 878378743,
+      "customerstatus": "ACTIVE",
+      "customersystems": {
+        "customersystem1": "SYS01",
+        "customersystem2": null
+      },
+      "sysid": null
+    },
+    "persons": [{
+      "personid": "123",
+      "personname": "IIISKDJKJSD"
+    },
+      {
+        "personid": "456",
+        "personname": "IUDFIDIKJK"
+      }]
+  }
+}
