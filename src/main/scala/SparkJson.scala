@@ -1,7 +1,7 @@
 import org.apache.spark
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{DataType, StructType}
-
+import org.apache.spark.sql.functions._
 object SparkJson extends App{
 
   val sparkSession = SparkSession.builder
@@ -9,6 +9,7 @@ object SparkJson extends App{
     .appName("spark session example")
     .getOrCreate()
   sparkSession.sparkContext.setLogLevel("ERROR")
+  import sparkSession.implicits._
 
   val df = sparkSession.read.option("multiLine", true).json("customer.json")
   df.show(false)
@@ -22,5 +23,10 @@ object SparkJson extends App{
 
   val fields = collectFields("",df.schema).map(_.tail)
 
-  df.select(fields.map(col):_*).show(false)
+ val seconddf= df.select(fields.map(col):_*)
+  seconddf.show(false)
+
+  seconddf.select(explode($"persons").as("persons"))
+    .select("persons.*")
+    .show(false)
 }
