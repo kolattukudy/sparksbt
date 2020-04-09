@@ -26,7 +26,7 @@ object SparkJson extends App{
  val seconddf= df.select(fields.map(col):_*)
   seconddf.show(false)
 
-  seconddf.select(explode($"persons").as("persons"))
-    .select("persons.*")
+  seconddf.select($"customerid",$"customerstatus",explode($"persons").as("persons"))
+    .select($"customerid",$"customerstatus",$"persons.*")
     .show(false)
 }
