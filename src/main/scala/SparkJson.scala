@@ -1,7 +1,9 @@
 import org.apache.spark
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types.{DataType, StructType}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.types.{ArrayType, DataType, StructType}
 import org.apache.spark.sql.functions._
+
+import scala.annotation.tailrec
 object SparkJson extends App{
 
   val sparkSession = SparkSession.builder
@@ -20,6 +22,28 @@ object SparkJson extends App{
       case _ => Seq(field)
     }
   }
+
+  @tailrec
+  def recurs(df: DataFrame): DataFrame = {
+    if(df.schema.fields.find(_.dataType match {
+      case ArrayType(StructType(_),_) | StructType(_) => true
+      case _ => false
+    }).isEmpty) df
+    else {
+      val columns = df.schema.fields.map(f => f.dataType match {
+        case _: ArrayType => explode(col(f.name)).as(f.name)
+        case s: StructType => col(s"${f.name}.*")
+        case _ => col(f.name)
+      })
+      recurs(df.select(columns:_*))
+    }
+  }
+  val recursedDF = recurs(df)
+  val valuesColumns = recursedDF.columns.filter(_.startsWith("customer"))
+  val projectionDF = recursedDF.withColumn("values", coalesce(valuesColumns.map(col):_*))
+  projectionDF.show(false)
+
+
 
   val fields = collectFields("",df.schema).map(_.tail)
 
